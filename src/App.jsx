@@ -1,9 +1,9 @@
-import Route from "./routes/route";
+import Views from "./view/views";
 
 function App() {
   return (
     <>
-      <Route />
+      <Views />
     </>
   );
 }

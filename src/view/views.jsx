@@ -8,7 +8,7 @@ import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import NotFound from "../pages/NotFound";
 
-const route = () => {
+const views = () => {
   return (
     <>
       <BrowserRouter>
@@ -28,4 +28,4 @@ const route = () => {
   );
 };
 
-export default route;
+export default views;

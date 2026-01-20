@@ -1,9 +1,31 @@
 import { User, Calendar, Lock, Mail, Eye, EyeOff, Phone } from "lucide-react";
 import { useState } from "react";
+import globalVaidation from "../utils/globalValidation";
+import { input } from "framer-motion/client";
 
 function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
-  const [gender, setGender] = useState("");
+  const [invalid, setInvalid] = useState("");
+  const [inputs, setInput] = useState({
+    fName: "",
+    lName: "",
+    birthDate: "",
+    sex: "",
+    email: "",
+    mNumber: "",
+    password: "",
+  });
+
+  const { fName, lName, birthDate, sex, email, mNumber, password } = inputs;
+
+  const onChange = (e) => {
+    setInput({ ...inputs, [e.target.name]: e.target.value });
+  };
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    globalVaidation(inputs);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 md:p-8">
@@ -25,6 +47,8 @@ function RegisterPage() {
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
+                    onChange={(e) => onChange(e)}
+                    name="fName"
                     type="text"
                     placeholder="First name"
                     className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
@@ -40,6 +64,8 @@ function RegisterPage() {
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
+                    onChange={(e) => onChange(e)}
+                    name="lName"
                     type="text"
                     placeholder="Last name"
                     className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
@@ -57,6 +83,8 @@ function RegisterPage() {
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
+                  onChange={(e) => onChange(e)}
+                  name="birthDate"
                   type="date"
                   className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
                   required
@@ -74,9 +102,9 @@ function RegisterPage() {
                   <button
                     key={option}
                     type="button"
-                    onClick={() => setGender(option)}
+                    onClick={() => setInput({ ...inputs, sex: option })}
                     className={`py-3 text-sm font-medium rounded-lg border transition-all ${
-                      gender === option
+                      sex === option
                         ? "border-green-500 bg-green-50 text-green-700"
                         : "border-gray-300 text-gray-700 hover:bg-gray-50"
                     }`}
@@ -97,6 +125,8 @@ function RegisterPage() {
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                     <input
+                      onChange={(e) => onChange(e)}
+                      name="email"
                       type="text"
                       placeholder="Enter mail"
                       className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
@@ -112,6 +142,8 @@ function RegisterPage() {
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                     <input
+                      onChange={(e) => onChange(e)}
+                      name="mNumber"
                       type="text"
                       placeholder="Enter mobile"
                       className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
@@ -125,11 +157,13 @@ function RegisterPage() {
             {/* Password */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">
-                New password
+                Password
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
+                  onChange={(e) => onChange(e)}
+                  name="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Create a password"
                   className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
@@ -155,7 +189,7 @@ function RegisterPage() {
 
             {/* Sign Up Button */}
             <button
-              type="submit"
+              onClick={onSubmit}
               className="w-full bg-green-600 text-white py-3.5 px-4 rounded-lg font-semibold hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 shadow-sm transition-all duration-200"
             >
               Sign Up
