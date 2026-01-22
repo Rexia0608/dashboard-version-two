@@ -1,12 +1,12 @@
 import { User, Calendar, Lock, Mail, Eye, EyeOff, Phone } from "lucide-react";
-import { useState } from "react";
-import globalVaidation from "../utils/globalValidation";
-import { input } from "framer-motion/client";
+import { useState, useCallback } from "react";
+import signUpValidation from "../utils/signUpValidation";
 
 function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
-  const [invalid, setInvalid] = useState("");
-  const [inputs, setInput] = useState({
+  const [invalid, setInvalid] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [inputs, setInputs] = useState({
     fName: "",
     lName: "",
     birthDate: "",
@@ -16,16 +16,65 @@ function RegisterPage() {
     password: "",
   });
 
-  const { fName, lName, birthDate, sex, email, mNumber, password } = inputs;
+  // Debounced validation to avoid validating on every keystroke
+  const validateField = useCallback(
+    async (name, value) => {
+      const { notValid } = await signUpValidation({
+        ...inputs,
+        [name]: value,
+      });
+      setInvalid((prev) => ({ ...prev, [name]: notValid[name] || "" }));
+    },
+    [inputs],
+  );
 
+  // Handle input changes
   const onChange = (e) => {
-    setInput({ ...inputs, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setInputs((prev) => ({ ...prev, [name]: value }));
+
+    // Validate only after user stops typing (simple debounce)
+    if (name !== "sex") {
+      // Don't validate gender on every change
+      const timer = setTimeout(() => validateField(name, value), 500);
+      return () => clearTimeout(timer);
+    }
   };
 
+  // Handle gender selection
+  const handleGenderSelect = async (gender) => {
+    const updatedInputs = { ...inputs, sex: gender };
+    setInputs(updatedInputs);
+
+    // Validate gender selection
+    const { notValid } = await signUpValidation(updatedInputs);
+    setInvalid((prev) => ({ ...prev, sex: notValid.sex || "" }));
+  };
+
+  // Handle form submission
   const onSubmit = async (e) => {
     e.preventDefault();
-    globalVaidation(inputs);
+    setIsSubmitting(true);
+
+    try {
+      const { notValid, isValid } = await signUpValidation(inputs);
+
+      if (isValid || Object.keys(notValid).length === 0) {
+        console.log("READY TO SUBMIT 🚀", inputs);
+        // Add your API call here
+        // await registerUser(inputs);
+      } else {
+        setInvalid(notValid);
+      }
+    } catch (error) {
+      console.error("Validation error:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  // Check if form is valid for enabling submit button
+  const isFormValid = Object.values(invalid).every((error) => !error);
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 md:p-8">
@@ -37,9 +86,9 @@ function RegisterPage() {
             <p className="text-gray-600">Easy and efficient.</p>
           </div>
 
-          <form className="space-y-6">
+          <form onSubmit={onSubmit} className="space-y-6">
             {/* Name Fields */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">
                   First name
@@ -47,14 +96,20 @@ function RegisterPage() {
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
-                    onChange={(e) => onChange(e)}
+                    onChange={onChange}
+                    value={inputs.fName}
                     name="fName"
                     type="text"
                     placeholder="First name"
-                    className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
+                    className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all ${
+                      invalid.fName ? "border-red-500" : "border-gray-300"
+                    }`}
                     required
                   />
                 </div>
+                {invalid.fName && (
+                  <p className="text-sm text-red-500">{invalid.fName}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -64,14 +119,20 @@ function RegisterPage() {
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
-                    onChange={(e) => onChange(e)}
+                    onChange={onChange}
+                    value={inputs.lName}
                     name="lName"
                     type="text"
                     placeholder="Last name"
-                    className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
+                    className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all ${
+                      invalid.lName ? "border-red-500" : "border-gray-300"
+                    }`}
                     required
                   />
                 </div>
+                {invalid.lName && (
+                  <p className="text-sm text-red-500">{invalid.lName}</p>
+                )}
               </div>
             </div>
 
@@ -83,13 +144,19 @@ function RegisterPage() {
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
-                  onChange={(e) => onChange(e)}
+                  onChange={onChange}
+                  value={inputs.birthDate}
                   name="birthDate"
                   type="date"
-                  className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
+                  className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all ${
+                    invalid.birthDate ? "border-red-500" : "border-gray-300"
+                  }`}
                   required
                 />
               </div>
+              {invalid.birthDate && (
+                <p className="text-sm text-red-500">{invalid.birthDate}</p>
+              )}
             </div>
 
             {/* Gender */}
@@ -102,9 +169,9 @@ function RegisterPage() {
                   <button
                     key={option}
                     type="button"
-                    onClick={() => setInput({ ...inputs, sex: option })}
+                    onClick={() => handleGenderSelect(option)}
                     className={`py-3 text-sm font-medium rounded-lg border transition-all ${
-                      sex === option
+                      inputs.sex === option
                         ? "border-green-500 bg-green-50 text-green-700"
                         : "border-gray-300 text-gray-700 hover:bg-gray-50"
                     }`}
@@ -113,44 +180,59 @@ function RegisterPage() {
                   </button>
                 ))}
               </div>
+              {invalid.sex && (
+                <p className="text-sm text-red-500 text-center">
+                  {invalid.sex}
+                </p>
+              )}
             </div>
 
-            {/* Email */}
-            <div className="space-y-2">
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Email
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <input
-                      onChange={(e) => onChange(e)}
-                      name="email"
-                      type="text"
-                      placeholder="Enter mail"
-                      className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
-                      required
-                    />
-                  </div>
+            {/* Email and Mobile */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Email
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    onChange={onChange}
+                    value={inputs.email}
+                    name="email"
+                    type="email"
+                    placeholder="Enter email"
+                    className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all ${
+                      invalid.email ? "border-red-500" : "border-gray-300"
+                    }`}
+                    required
+                  />
                 </div>
+                {invalid.email && (
+                  <p className="text-sm text-red-500">{invalid.email}</p>
+                )}
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Mobile number
-                  </label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <input
-                      onChange={(e) => onChange(e)}
-                      name="mNumber"
-                      type="text"
-                      placeholder="Enter mobile"
-                      className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
-                      required
-                    />
-                  </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Mobile number
+                </label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    onChange={onChange}
+                    value={inputs.mNumber}
+                    name="mNumber"
+                    type="tel"
+                    placeholder="Enter mobile"
+                    className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all ${
+                      invalid.mNumber ? "border-red-500" : "border-gray-300"
+                    }`}
+                    required
+                  />
                 </div>
+                {invalid.mNumber && (
+                  <p className="text-sm text-red-500">{invalid.mNumber}</p>
+                )}
               </div>
             </div>
 
@@ -162,17 +244,21 @@ function RegisterPage() {
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
-                  onChange={(e) => onChange(e)}
+                  onChange={onChange}
+                  value={inputs.password}
                   name="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Create a password"
-                  className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
+                  className={`w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all ${
+                    invalid.password ? "border-red-500" : "border-gray-300"
+                  }`}
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
@@ -181,18 +267,22 @@ function RegisterPage() {
                   )}
                 </button>
               </div>
-              <p className="text-xs text-gray-500">
-                Use at least 8 characters with a mix of letters, numbers &
-                symbols
-              </p>
+              {invalid.password && (
+                <p className="text-sm text-red-500">{invalid.password}</p>
+              )}
             </div>
 
             {/* Sign Up Button */}
             <button
-              onClick={onSubmit}
-              className="w-full bg-green-600 text-white py-3.5 px-4 rounded-lg font-semibold hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 shadow-sm transition-all duration-200"
+              type="submit"
+              disabled={isSubmitting || !isFormValid}
+              className={`w-full py-3.5 px-4 rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 shadow-sm transition-all duration-200 ${
+                isSubmitting || !isFormValid
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-green-600 text-white hover:bg-green-700"
+              }`}
             >
-              Sign Up
+              {isSubmitting ? "Signing Up..." : "Sign Up"}
             </button>
           </form>
 
