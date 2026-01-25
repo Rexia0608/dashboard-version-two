@@ -1,53 +1,56 @@
 import { Lock, Mail, Eye, EyeOff, Building } from "lucide-react";
 import { useState } from "react";
 import signInValidation from "../utils/signInValidation";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { NavLink } from "react-router-dom";
 
 function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [invalid, setInvalid] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [inputs, setInputs] = useState({
     email: "",
     password: "",
   });
 
   const onChange = async (e) => {
-    const { name, value } = e.target;
-
-    const updatedInputs = {
-      ...inputs,
-      [name]: value,
-    };
-
-    setInputs(updatedInputs);
-
-    const { notValid } = await signInValidation(updatedInputs);
+    const newInputs = { ...inputs, [e.target.name]: e.target.value };
+    setInputs(newInputs);
+    const { notValid } = await signInValidation(newInputs);
     setInvalid(notValid);
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    const { notValid } = await signInValidation(inputs);
+    setInvalid(notValid);
+    // Replace with actual API check
+    const ApiTest = false;
+    if (Object.keys(notValid).length === 0) {
+      console.log("Form is valid, proceeding with login...");
 
-    try {
-      const { notValid, isValid } = await signInValidation(inputs);
-
-      if (isValid || Object.keys(notValid).length === 0) {
-        console.log("READY TO SUBMIT 🚀", inputs);
-        // Add your API call here
-        // await registerUser(inputs);
-      } else {
-        setInvalid(notValid);
+      if (ApiTest) {
+        // Set token logic here
       }
-    } catch (error) {
-      console.error("Validation error:", error);
-    } finally {
-      setIsSubmitting(false);
+      toast(
+        ApiTest
+          ? "Checking Credentials."
+          : "Login failed. Please check your credentials or register.",
+        {
+          toastId: "validation-errors",
+          type: ApiTest ? "success" : "error",
+          autoClose: ApiTest ? 3000 : 5000,
+        },
+      );
+    } else {
+      const errorMessages = Object.values(notValid).join(", ");
+      toast(`${errorMessages}`, {
+        toastId: "validation-errors",
+        type: "error",
+        autoClose: 5000, // Added for consistency
+      });
     }
   };
-
-  // Check if form is valid for enabling submit button
-  const isFormValid = Object.values(invalid).every((error) => !error);
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -152,7 +155,7 @@ function LoginPage() {
               <p className="text-gray-600">Please sign in to your account</p>
             </div>
 
-            <form onSubmit={onSubmit} className="space-y-6">
+            <form className="space-y-6">
               {/* Email Field */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">
@@ -161,25 +164,17 @@ function LoginPage() {
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
-                    onChange={(e) => onChange(e)}
                     name="email"
                     type="email"
+                    onChange={(e) => onChange(e)}
                     placeholder="Enter your email"
-                    className={`w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${invalid.email ? "border-red-500" : "border-gray-300"}`}
+                    className="w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all border-gray-300"
                     required
                   />
                 </div>
-                {invalid.email && (
-                  <p className="text-sm text-red-500">{invalid.email}</p>
-                )}
                 <p className="text-xs text-gray-500">
-                  Try:{" "}
-                  <span className="font-mono text-blue-600">
-                    admin@school.edu
-                  </span>{" "}
-                  or{" "}
-                  <span className="font-mono text-blue-600">
-                    faculty@school.edu
+                  <span className="font-mono text-red-600">
+                    {invalid.email}
                   </span>
                 </p>
               </div>
@@ -190,12 +185,6 @@ function LoginPage() {
                   <label className="block text-sm font-medium text-gray-700">
                     Password
                   </label>
-                  <button
-                    type="button"
-                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                  >
-                    Forgot password?
-                  </button>
                 </div>
 
                 <div className="relative">
@@ -205,7 +194,7 @@ function LoginPage() {
                     name="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
-                    className={`w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${invalid.password ? "border-red-500" : "border-gray-300"}`}
+                    className="w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all border-gray-300"
                     required
                   />
                   <button
@@ -220,12 +209,10 @@ function LoginPage() {
                     )}
                   </button>
                 </div>
-                {invalid.password && (
-                  <p className="text-sm text-red-500">{invalid.password}</p>
-                )}
                 <p className="text-xs text-gray-500">
-                  Use: <span className="font-mono text-blue-600">demo123</span>{" "}
-                  for demo access
+                  <span className="font-mono text-red-600">
+                    {invalid.password}
+                  </span>
                 </p>
               </div>
 
@@ -246,11 +233,10 @@ function LoginPage() {
 
               {/* Submit Button */}
               <button
-                type="submit"
-                disabled={isSubmitting || !isFormValid}
-                className={`w-full py-3.5 px-4 rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm transition-all duration-200 ${isSubmitting || !isFormValid ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700"}`}
+                onClick={onSubmit}
+                className="w-full py-3.5 px-4 rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm transition-all duration-20 bg-blue-600 text-white hover:bg-blue-700"
               >
-                {isSubmitting ? "Signing In..." : "Sign In"}
+                Sign In
               </button>
             </form>
 
@@ -276,11 +262,21 @@ function LoginPage() {
             </div>
 
             {/* Help Text */}
-            <div className="mt-6 text-center">
-              <p className="text-xs text-gray-500">
-                Need access? Contact your system administrator
-              </p>
-            </div>
+            <NavLink to="/register">
+              <div className="mt-6 text-center">
+                <p className="text-sm text-blue-600 hover:underline hover:text-blue-700 font-medium">
+                  Create an Accout
+                </p>
+              </div>
+            </NavLink>
+
+            <NavLink to="/***">
+              <div className="mt-6 text-center">
+                <p className="text-sm text-blue-600 hover:underline hover:text-blue-700 font-medium">
+                  Forgot password?
+                </p>
+              </div>
+            </NavLink>
           </div>
 
           {/* Footer Note */}
@@ -291,6 +287,7 @@ function LoginPage() {
             </p>
           </div>
         </div>
+        <ToastContainer />
       </div>
     </div>
   );

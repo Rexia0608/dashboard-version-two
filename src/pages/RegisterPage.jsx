@@ -1,6 +1,9 @@
 import { User, Calendar, Lock, Mail, Eye, EyeOff, Phone } from "lucide-react";
 import { useState, useCallback } from "react";
 import signUpValidation from "../utils/signUpValidation";
+import { NavLink } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -55,16 +58,35 @@ function RegisterPage() {
   const onSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    const ApiTest = true;
 
     try {
       const { notValid, isValid } = await signUpValidation(inputs);
 
       if (isValid || Object.keys(notValid).length === 0) {
         console.log("READY TO SUBMIT 🚀", inputs);
-        // Add your API call here
-        // await registerUser(inputs);
+
+        if (ApiTest) {
+          // Set token logic here
+        }
+        toast(
+          ApiTest
+            ? "Checking Credentials."
+            : "Login failed. Please check your credentials or register.",
+          {
+            toastId: "validation-errors",
+            type: ApiTest ? "success" : "error",
+            autoClose: ApiTest ? 3000 : 5000,
+          },
+        );
       } else {
         setInvalid(notValid);
+        const errorMessages = Object.values(notValid).join(", ");
+        toast(`${errorMessages}`, {
+          toastId: "validation-errors",
+          type: "error",
+          autoClose: 5000, // Added for consistency
+        });
       }
     } catch (error) {
       console.error("Validation error:", error);
@@ -288,15 +310,14 @@ function RegisterPage() {
 
           {/* Already have an account */}
           <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-            <p className="text-gray-600">
-              Already have an account?{" "}
-              <a
-                href="#"
-                className="text-green-600 hover:underline font-semibold"
-              >
-                Sign In
-              </a>
-            </p>
+            <NavLink to="/login">
+              <p className="text-gray-600">
+                Already have an account?{" "}
+                <span className="text-green-600 hover:underline font-semibold">
+                  Sign in
+                </span>
+              </p>
+            </NavLink>
           </div>
         </div>
 
@@ -306,6 +327,7 @@ function RegisterPage() {
             © {new Date().getFullYear()} EnrollPlus • Developed by: John Rey C.
           </p>
         </div>
+        <ToastContainer />
       </div>
     </div>
   );

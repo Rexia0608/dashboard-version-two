@@ -9,15 +9,6 @@ const schema = Joi.object({
       "string.email": "Email is not valid",
     }),
 
-  mNumber: Joi.string()
-    .pattern(/^\+[1-9]\d{1,14}$/)
-    .required()
-    .messages({
-      "string.empty": "Mobile number is required",
-      "string.pattern.base":
-        "Mobile number must be in international format (e.g. +639171234567)",
-    }),
-
   password: Joi.string().required().messages({
     "string.empty": "Password is required",
   }),
