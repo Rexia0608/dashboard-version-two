@@ -5,7 +5,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { NavLink } from "react-router-dom";
 
-function LoginPage() {
+function LoginPage({ setAuth }) {
   const [showPassword, setShowPassword] = useState(false);
   const [invalid, setInvalid] = useState({});
   const [inputs, setInputs] = useState({
@@ -30,7 +30,7 @@ function LoginPage() {
       console.log("Form is valid, proceeding with login...");
 
       if (ApiTest) {
-        // Set token logic here
+        setAuth(true);
       }
       toast(
         ApiTest

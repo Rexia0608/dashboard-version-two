@@ -58,7 +58,7 @@ function RegisterPage() {
   const onSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    const ApiTest = true;
+    const ApiTest = false;
 
     try {
       const { notValid, isValid } = await signUpValidation(inputs);
@@ -69,16 +69,11 @@ function RegisterPage() {
         if (ApiTest) {
           // Set token logic here
         }
-        toast(
-          ApiTest
-            ? "Checking Credentials."
-            : "Login failed. Please check your credentials or register.",
-          {
-            toastId: "validation-errors",
-            type: ApiTest ? "success" : "error",
-            autoClose: ApiTest ? 3000 : 5000,
-          },
-        );
+        toast(ApiTest ? "Checking Credentials." : "Email is already used.", {
+          toastId: "validation-errors",
+          type: ApiTest ? "success" : "error",
+          autoClose: ApiTest ? 3000 : 5000,
+        });
       } else {
         setInvalid(notValid);
         const errorMessages = Object.values(notValid).join(", ");
