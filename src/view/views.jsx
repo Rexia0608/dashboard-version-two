@@ -4,7 +4,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { useState, useEffect } from "react";
+
 import AdminDashboard from "../pages/AdminDashboard";
 import FacultyDashboard from "../pages/FacultyDashboard";
 import StudentDashboard from "../pages/StudentDashboard";
@@ -12,53 +12,52 @@ import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import NotFound from "../pages/NotFound";
 import MaintenancePage from "../pages/MaintenancePage";
-import axios from "axios";
+import UnauthorizedPage from "../pages/UnauthorizedPage";
 
-const views = () => {
-  const [isAuthenticated, setAuthenticated] = useState(false);
-  const [isMaintenance, setIsMaintenance] = useState(false);
+import { AuthProvider } from "../context/AuthContext";
+import ProtectedRoute from "../routes/ProtectedRotues";
 
-  const setAuth = (boolean) => {
-    setAuthenticated(boolean);
-  };
-
-  async function isAuth() {
-    try {
-      const response = await axios.get("server_API_AUTH_VERIFY", {
-        headers: {
-          token: localStorage.token,
-        },
-      });
-      if (response.status === 200) {
-        setAuthenticated(response.data === true);
-      }
-    } catch (error) {
-      // Backend is in maintenance
-    }
-  }
-
-  useEffect(() => {
-    isAuth();
-  }, []);
-
+const Views = () => {
   return (
-    <>
-      <Router>
-        <div className="min-h-screen bg-gray-50">
-          <Routes>
-            <Route path="/" element={<Navigate to="/login" replace />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/admin/*" element={<AdminDashboard />} />
-            <Route path="/faculty/*" element={<FacultyDashboard />} />
-            <Route path="/student/*" element={<StudentDashboard />} />
-            <Route path="/maintenance*" element={<MaintenancePage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </div>
-      </Router>
-    </>
+    <div className="min-h-screen bg-gray-50">
+      <Routes>
+        {/* ================= PUBLIC ================= */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/unauthorized" element={<UnauthorizedPage />} />
+        <Route path="/maintenance" element={<MaintenancePage />} />
+
+        {/* ================= ADMIN ================= */}
+        <Route
+          path="/admin"
+          element={<ProtectedRoute allowedRoles={["admin"]} />}
+        >
+          <Route path="dashboard/*" element={<AdminDashboard />} />
+        </Route>
+
+        {/* ================= FACULTY ================= */}
+        <Route
+          path="/faculty"
+          element={<ProtectedRoute allowedRoles={["faculty"]} />}
+        >
+          <Route path="dashboard/" element={<FacultyDashboard />} />
+        </Route>
+
+        {/* ================= STUDENT ================= */}
+        <Route
+          path="/student"
+          element={<ProtectedRoute allowedRoles={["student"]} />}
+        >
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard/" element={<StudentDashboard />} />
+        </Route>
+
+        {/* ================= DEFAULT ================= */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </div>
   );
 };
 
-export default views;
+export default Views;

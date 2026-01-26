@@ -18,13 +18,13 @@ import {
 
 function Sidebar({ role, isOpen = true }) {
   const adminItems = [
-    { to: "/admin", icon: LayoutDashboard, label: "Overview" },
+    { to: "/admin/dashboard", icon: LayoutDashboard, label: "Overview" },
     { to: "/admin/enrollment", icon: Calendar, label: "Enrollment Control" },
-    { to: "/admin/users", icon: Users, label: "User Management" },
-    { to: "/admin/course", icon: BookOpen, label: "Courses Management" },
-    { to: "/admin/schedule", icon: Clock, label: "Schedules" },
-    { to: "/admin/maintenance", icon: Shield, label: "Maintenance" },
-    { to: "/admin/activity", icon: BarChart, label: "Activity Log" },
+    { to: "users", icon: Users, label: "User Management" },
+    { to: "course", icon: BookOpen, label: "Courses Management" },
+    { to: "schedule", icon: Clock, label: "Schedules" },
+    { to: "maintenance", icon: Shield, label: "Maintenance" },
+    { to: "activity", icon: BarChart, label: "Activity Log" },
   ];
 
   const facultyItems = [

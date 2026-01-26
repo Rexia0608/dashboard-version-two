@@ -30,13 +30,13 @@ function AdminDashboard() {
         <main className="flex-1 pb-16 md:pb-0">
           <DashboardContainer>
             <Routes>
-              <Route path="/" element={<AdminOverview />} />
-              <Route path="/enrollment" element={<EnrollmentControl />} />
-              <Route path="/course" element={<CourseManagement />} />
-              <Route path="/schedule" element={<EnrollmentControlCard />} />
-              <Route path="/activity" element={<RecentActivityCard />} />
-              <Route path="/maintenance" element={<MaintenanceModeCard />} />
-              <Route path="/users" element={<UserManagement />} />
+              <Route index element={<AdminOverview />} />
+              <Route path="/admin/enrollment" element={<EnrollmentControl />} />
+              <Route path="course" element={<CourseManagement />} />
+              <Route path="schedule" element={<EnrollmentControlCard />} />
+              <Route path="activity" element={<RecentActivityCard />} />
+              <Route path="maintenance" element={<MaintenanceModeCard />} />
+              <Route path="users" element={<UserManagement />} />
               {/* Add more routes for other admin sections */}
             </Routes>
           </DashboardContainer>

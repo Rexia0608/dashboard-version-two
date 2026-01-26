@@ -58,7 +58,7 @@ function RegisterPage() {
   const onSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    const ApiTest = false;
+    const ApiTest = true;
 
     try {
       const { notValid, isValid } = await signUpValidation(inputs);
