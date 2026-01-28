@@ -14,7 +14,6 @@ import NotFound from "../pages/NotFound";
 import MaintenancePage from "../pages/MaintenancePage";
 import UnauthorizedPage from "../pages/UnauthorizedPage";
 
-import { AuthProvider } from "../context/AuthContext";
 import ProtectedRoute from "../routes/ProtectedRotues";
 
 const Views = () => {
@@ -38,18 +37,20 @@ const Views = () => {
         {/* ================= FACULTY ================= */}
         <Route
           path="/faculty"
-          element={<ProtectedRoute allowedRoles={["faculty"]} />}
+          element={<ProtectedRoute allowedRoles={["faculty", "admin"]} />}
         >
-          <Route path="dashboard/" element={<FacultyDashboard />} />
+          <Route path="dashboard/*" element={<FacultyDashboard />} />
         </Route>
 
         {/* ================= STUDENT ================= */}
         <Route
           path="/student"
-          element={<ProtectedRoute allowedRoles={["student"]} />}
+          element={
+            <ProtectedRoute allowedRoles={["student", "admin", "faculty"]} />
+          }
         >
           <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard/" element={<StudentDashboard />} />
+          <Route path="dashboard/*" element={<StudentDashboard />} />
         </Route>
 
         {/* ================= DEFAULT ================= */}

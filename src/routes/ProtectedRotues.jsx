@@ -1,11 +1,27 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useEffect, useState } from "react";
+import LoadingPage from "../pages/LoadingPage";
 
 const ProtectedRoute = ({ allowedRoles }) => {
   const { user, loading } = useAuth();
+  const [delayDone, setDelayDone] = useState(false);
 
-  if (loading) {
-    return <div>Checking authentication...</div>; // or spinner
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDelayDone(true);
+    }, 5500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Still checking auth OR delay not finished
+  if (loading || !delayDone) {
+    return (
+      <>
+        <LoadingPage />
+      </>
+    );
   }
 
   if (!user) {

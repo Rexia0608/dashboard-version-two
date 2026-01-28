@@ -9,6 +9,7 @@ import FacultyOverview from "../components/faculty/FacultyOverview";
 import DocumentReview from "../components/faculty/DocumentReview";
 import PaymentValidation from "../components/faculty/PaymentValidation";
 import StudentDetails from "../components/faculty/StudentDetails";
+import NotFound from "./NotFound";
 
 function FacultyDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -27,11 +28,14 @@ function FacultyDashboard() {
         <main className="flex-1 pb-16 md:pb-0">
           <DashboardContainer>
             <Routes>
-              <Route path="/" element={<FacultyOverview />} />
-              <Route path="/documents" element={<DocumentReview />} />
-              <Route path="/payments" element={<PaymentValidation />} />
-              <Route path="/students" element={<StudentDetails />} />
+              <Route index element={<FacultyOverview />} />
+              <Route path="documents" element={<DocumentReview />} />
+              <Route path="payments" element={<PaymentValidation />} />
+              <Route path="students" element={<StudentDetails />} />
               {/* Add more faculty routes as needed */}
+
+              {/* 404 response when someone crawiling it will catch here */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </DashboardContainer>
         </main>

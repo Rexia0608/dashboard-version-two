@@ -7,6 +7,7 @@ import MobileNav from "../components/layout/MobileNav";
 import DashboardContainer from "../components/layout/DashboardContainer";
 import StudentStatus from "../components/student/StudentStatus";
 import StudentDocuments from "../components/student/StudentDocuments";
+import NotFound from "./NotFound";
 
 function StudentDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -25,9 +26,11 @@ function StudentDashboard() {
         <main className="flex-1 pb-16 md:pb-0">
           <DashboardContainer>
             <Routes>
-              <Route path="/" element={<StudentStatus />} />
-              <Route path="/documents" element={<StudentDocuments />} />
-              {/* Add more student routes */}
+              <Route index element={<StudentStatus />} />
+              <Route path="documents" element={<StudentDocuments />} />
+
+              {/* 404 response when someone crawiling it will catch here */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </DashboardContainer>
         </main>
