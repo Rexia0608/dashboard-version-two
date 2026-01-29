@@ -10,7 +10,7 @@ const ProtectedRoute = ({ allowedRoles }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDelayDone(true);
-    }, 5500);
+    }, 800);
 
     return () => clearTimeout(timer);
   }, []);

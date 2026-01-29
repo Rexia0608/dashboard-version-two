@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
     // simulate auth check
     setUser({
       id: 1,
-      role: "student",
+      role: "admin",
       name: "John Doe",
       token: "test-jwt-token",
     });
